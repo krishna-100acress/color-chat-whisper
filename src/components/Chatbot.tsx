@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -103,12 +102,13 @@ const Chatbot = () => {
     return maxScore > 0 ? bestMatch : null;
   };
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = (messageText?: string) => {
+    const textToSend = messageText || inputValue;
+    if (!textToSend.trim()) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      text: inputValue,
+      text: textToSend,
       isUser: true,
       timestamp: new Date()
     };
@@ -116,7 +116,7 @@ const Chatbot = () => {
     setMessages(prev => [...prev, userMessage]);
 
     // Find best matching FAQ
-    const bestMatch = findBestMatch(inputValue);
+    const bestMatch = findBestMatch(textToSend);
     
     setTimeout(() => {
       const botResponse: Message = {
@@ -137,6 +137,10 @@ const Chatbot = () => {
     if (e.key === 'Enter') {
       handleSendMessage();
     }
+  };
+
+  const handleQuestionClick = (question: string) => {
+    handleSendMessage(question);
   };
 
   const suggestedQuestions = [
@@ -221,7 +225,7 @@ const Chatbot = () => {
                       {(index === 0 ? suggestedQuestions : getRandomSuggestions()).map((question, qIndex) => (
                         <button
                           key={qIndex}
-                          onClick={() => setInputValue(question)}
+                          onClick={() => handleQuestionClick(question)}
                           className="block w-full text-left text-xs p-2 bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100 rounded-lg transition-colors duration-200 text-gray-700 border border-orange-100"
                         >
                           {question}
