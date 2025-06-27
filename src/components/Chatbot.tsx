@@ -146,6 +146,11 @@ const Chatbot = () => {
     "What are your upcoming projects?"
   ];
 
+  const getRandomSuggestions = () => {
+    const shuffled = [...predefinedFAQs].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3).map(faq => faq.question);
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {/* Chat Button */}
@@ -185,49 +190,48 @@ const Chatbot = () => {
           {/* Messages */}
           <ScrollArea className="flex-1 p-4">
             <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`flex items-start space-x-2 max-w-[85%] ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                      message.isUser 
-                        ? 'bg-gradient-to-r from-orange-400 to-yellow-400' 
-                        : 'bg-gray-100'
-                    }`}>
-                      {message.isUser 
-                        ? <User className="h-3 w-3 text-white" />
-                        : <Bot className="h-3 w-3 text-gray-600" />
-                      }
-                    </div>
-                    <div className={`rounded-lg p-3 ${
-                      message.isUser
-                        ? 'bg-gradient-to-r from-orange-400 to-yellow-400 text-white'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      <p className="text-sm">{message.text}</p>
+              {messages.map((message, index) => (
+                <div key={message.id}>
+                  <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`flex items-start space-x-2 max-w-[85%] ${message.isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                        message.isUser 
+                          ? 'bg-gradient-to-r from-orange-400 to-yellow-400' 
+                          : 'bg-gray-100'
+                      }`}>
+                        {message.isUser 
+                          ? <User className="h-3 w-3 text-white" />
+                          : <Bot className="h-3 w-3 text-gray-600" />
+                        }
+                      </div>
+                      <div className={`rounded-lg p-3 ${
+                        message.isUser
+                          ? 'bg-gradient-to-r from-orange-400 to-yellow-400 text-white'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        <p className="text-sm">{message.text}</p>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Show suggested questions after bot responses */}
+                  {!message.isUser && (
+                    <div className="mt-3 ml-8 space-y-2">
+                      <p className="text-xs text-gray-500 mb-2">You might also ask:</p>
+                      {(index === 0 ? suggestedQuestions : getRandomSuggestions()).map((question, qIndex) => (
+                        <button
+                          key={qIndex}
+                          onClick={() => setInputValue(question)}
+                          className="block w-full text-left text-xs p-2 bg-gradient-to-r from-orange-50 to-yellow-50 hover:from-orange-100 hover:to-yellow-100 rounded-lg transition-colors duration-200 text-gray-700 border border-orange-100"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
-
-            {/* Suggested Questions */}
-            {messages.length === 1 && (
-              <div className="mt-4 space-y-2">
-                <p className="text-xs text-gray-500 mb-2">Suggested questions:</p>
-                {suggestedQuestions.map((question, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setInputValue(question)}
-                    className="block w-full text-left text-xs p-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors duration-200 text-gray-700"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            )}
           </ScrollArea>
 
           {/* Input */}
