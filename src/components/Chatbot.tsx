@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -62,6 +63,7 @@ const predefinedFAQs: FAQ[] = [
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -169,7 +171,9 @@ const Chatbot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="bg-white rounded-2xl shadow-2xl w-80 h-96 flex flex-col border border-gray-200">
+        <div className={`bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200 transition-all duration-300 ${
+          isExpanded ? 'w-96 h-[500px]' : 'w-80 h-96'
+        }`}>
           {/* Header */}
           <div className="bg-gradient-to-r from-orange-400 to-yellow-400 rounded-t-2xl p-4 flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -181,14 +185,24 @@ const Chatbot = () => {
                 <p className="text-white/80 text-xs">Online now</p>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20 h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="text-white hover:bg-white/20 h-8 w-8 p-0"
+              >
+                {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:bg-white/20 h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -249,7 +263,7 @@ const Chatbot = () => {
                 className="flex-1 text-sm border-gray-300 focus:border-orange-400 focus:ring-orange-400"
               />
               <Button
-                onClick={handleSendMessage}
+                onClick={() => handleSendMessage()}
                 size="sm"
                 className="bg-gradient-to-r from-orange-400 to-yellow-400 hover:from-orange-500 hover:to-yellow-500 px-3"
               >
