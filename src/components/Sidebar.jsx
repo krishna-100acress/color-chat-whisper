@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   User,
@@ -9,10 +8,13 @@ import {
   Building2,
   Home,
   LogOut,
-  Settings
+  Settings,
+  Menu,
+  X
 } from 'lucide-react';
 
 const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -70,9 +72,35 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
     }
   };
 
+  const handleMobileToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleLinkClick = () => {
+    setMobileOpen(false);
+  };
+
   return (
     <>
-      <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      {/* Mobile menu button */}
+      <button 
+        className="mobile-menu-btn md:hidden"
+        onClick={handleMobileToggle}
+        aria-label="Toggle mobile menu"
+      >
+        {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Mobile backdrop */}
+      {mobileOpen && (
+        <div 
+          className="mobile-backdrop md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-logo">
             <Building2 className="icon" />
@@ -83,6 +111,14 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
               <p>CRM Dashboard</p>
             </div>
           )}
+          {/* Mobile close button inside sidebar */}
+          <button 
+            className="mobile-close-btn md:hidden"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -97,6 +133,7 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
                     className={({ isActive }) =>
                       `sidebar-link ${isActive ? 'active' : ''}`
                     }
+                    onClick={handleLinkClick}
                   >
                     <Icon className="icon" />
                     {!isCollapsed && <span>{item.label}</span>}
@@ -127,12 +164,55 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
       </div>
 
       <style>{`
+        .mobile-menu-btn {
+          position: fixed;
+          top: 1rem;
+          left: 1rem;
+          z-index: 1001;
+          background: #1e293b;
+          color: white;
+          border: none;
+          border-radius: 0.5rem;
+          padding: 0.75rem;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .mobile-menu-btn:hover {
+          background: #334155;
+          transform: scale(1.05);
+        }
+
+        .mobile-backdrop {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 999;
+          backdrop-filter: blur(2px);
+        }
+
+        .mobile-close-btn {
+          background: none;
+          border: none;
+          color: #cbd5e1;
+          cursor: pointer;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          margin-left: auto;
+          transition: background 0.2s ease;
+        }
+
+        .mobile-close-btn:hover {
+          background: #334155;
+        }
+
         .sidebar {
           background: linear-gradient(145deg, #1e293b, #111827);
           box-shadow: 4px 0 12px rgba(0,0,0,0.3);
           color: white;
           border-right: 1px solid #334155;
-          transition: width 0.3s ease;
+          transition: all 0.3s ease;
           width: 16rem;
           min-height: 100vh;
           display: flex;
@@ -146,6 +226,24 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
 
         .sidebar.collapsed {
           width: 4rem;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+          .sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+            max-width: 80vw;
+          }
+          
+          .sidebar.mobile-open {
+            transform: translateX(0);
+          }
+          
+          .sidebar.collapsed {
+            width: 280px;
+            max-width: 80vw;
+          }
         }
 
         .sidebar-header {
@@ -164,21 +262,25 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
 
         .sidebar-title {
           margin-left: 0.85rem;
+          flex: 1;
         }
 
         .sidebar-title h1 {
           font-size: 1rem;
           font-weight: 600;
+          margin: 0;
         }
 
         .sidebar-title p {
           font-size: 0.75rem;
           color: #94a3b8;
+          margin: 0;
         }
 
         .sidebar-nav {
           flex: 1;
           padding: 1rem 0.75rem;
+          overflow-y: auto;
         }
 
         .sidebar-nav ul {
@@ -213,6 +315,7 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
         .sidebar-link .icon {
           width: 1.25rem;
           height: 1.25rem;
+          flex-shrink: 0;
         }
 
         .sidebar-link span {
@@ -237,6 +340,7 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
           padding: 0.5rem;
           border-radius: 999px;
           box-shadow: 0 2px 4px rgba(255,255,255,0.1);
+          flex-shrink: 0;
         }
 
         .icon-small {
@@ -246,16 +350,25 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
 
         .user-info {
           margin-left: 0.75rem;
+          min-width: 0;
         }
 
         .user-name {
           font-size: 0.9rem;
           font-weight: 600;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .user-role {
           font-size: 0.75rem;
           color: #94a3b8;
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .logout-btn {
@@ -278,11 +391,23 @@ const Sidebar = ({ userRole, isCollapsed, onToggle }) => {
         .logout-btn .icon {
           width: 1.25rem;
           height: 1.25rem;
+          flex-shrink: 0;
         }
 
         .logout-btn span {
           margin-left: 0.75rem;
           font-size: 0.95rem;
+        }
+
+        /* Ensure content doesn't hide behind sidebar on desktop */
+        @media (min-width: 769px) {
+          body {
+            margin-left: 16rem;
+          }
+          
+          body.sidebar-collapsed {
+            margin-left: 4rem;
+          }
         }
       `}</style>
     </>
